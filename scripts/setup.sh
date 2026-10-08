@@ -41,4 +41,4 @@ if rg -q 'SCRIPT ERROR|^ERROR:' "$craft_import_log"; then
   echo "Godot reported import errors" >&2
   exit 1
 fi
-echo "Craft Empire Tycoon: Godot 4.7.2 installed and project imported."
+echo "MeatCraft Empire: Godot 4.7.2 installed and project imported."

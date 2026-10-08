@@ -1,27 +1,37 @@
-# Walidacja pierwszego grywalnego etapu
+# Walidacja MeatCraft Empire 3D
 
-Silnik: **Godot 4.7.2 Stable**, `4.7.2.stable.official.ed1daf0bf`, Linux x86-64. Oficjalne archiwum zweryfikowano przy użyciu pliku SHA512-SUMS z wydania Godot.
+Silnik: **Godot 4.7.2 Stable**, `4.7.2.stable.official.ed1daf0bf`, Linux x86-64. Projekt używa renderera GL Compatibility.
 
-## Wykonane sprawdzenia
+## Wyniki automatyczne
 
-- Import przez `--headless --editor --import`: zasoby, sceny, fonty, tłumaczenia i składnia GDScript.
-- Uruchomienie głównej sceny w trybie headless.
-- Testy w osobnym profilu danych: **43 sprawdzenia, 0 niepowodzeń**.
-- Test z renderowaniem OpenGL/Compatibility przez Xorg dummy/Mesa llvmpipe: **0 niepowodzeń**. Symulowane zdarzenia myszy otworzyły warsztat, uruchomiły partię i wybrały maszynę.
-- Oględziny wyrenderowanego menu, warsztatu, produkcji, ustawień, języka polskiego i szerszego układu. Poprawiono kolejność warstw modalnych oraz odstęp między warsztatem a dolnym panelem.
-- Powtórne wykonanie skryptu instalacyjnego i testowego.
-- Czysta kopia bez `.godot` i metadanych Git: import zakończony bez błędów, ponownie **43/43** sprawdzenia. Projekt nie wymaga istniejącej pamięci importu.
-- Uruchomienie w oknie 960×540 i szerszym układzie 1600×900: warsztat i panele mieszczą się na ekranie. Ocena rozmiaru celów dotyku na fizycznym telefonie pozostaje do wykonania.
+- Import projektu w edytorze headless: sceny, GDScript, fonty, obrazy i tłumaczenia zostały zaimportowane.
+- Regresja zachowanego prototypu 2D: **43 sprawdzenia, 0 niepowodzeń**.
+- Symulacja MeatCraft 3D: **41 sprawdzeń, 0 niepowodzeń**.
+- Integracja z rzeczywistym renderowaniem OpenGL przez Xorg dummy i Mesa llvmpipe: **21 sprawdzeń, 0 niepowodzeń**.
 
-Testy obejmują koszty składników, blokadę podwójnego uruchomienia, wszystkie etapy oraz transport, sprzedaż dokładnie raz, ulepszenia, niezmienność parametrów aktywnej partii, rezerwę na składniki, duże kroki czasu, rangi, zapis aktywnej produkcji, odczyt ustawień, kopię zapasową, uszkodzony JSON, niepoprawne typy pól, ograniczenie danych, New Game, przyciski interfejsu, współrzędne dotyku/myszy, menu oraz symulację uśpienia/wznowienia.
+Nowa symulacja sprawdza zakup hali i linii, koszty, blokady podwójnych działań, dostawę, zużycie składników, wszystkie etapy, obowiązkową kontrolę w połowie suszenia, bilans 10 kg → 9,4 kg → 4,7 kg → 94 × 50 g, pakowanie, jednokrotne naliczenie sprzedaży, deklaracje receptur, konserwację, czyszczenie oraz zapis i wznowienie aktywnego marynowania.
+
+Test wizualny sprawdza osiem wybieralnych obszarów urządzeń, 21 pasków mięsa, dwa wentylatory, trzech pracowników, wybór suszarni przez collider 3D, rzeczywisty przepływ zapasów, polskie tłumaczenie i brak nakładania paneli przy 960×540. Każdy zrzut jest wykonywany z aktualnego stanu gry, a nie z grafiki koncepcyjnej.
+
+## Oględziny renderów
+
+Sprawdzono menu, wybór nieruchomości, pustą i wyposażoną halę, aktywną linię, suszarnię, kontrolę w połowie cyklu, pakowanie, gotowe zamówienie i polski interfejs. W trakcie przeglądu poprawiono ekspozycję, położenie kamery, czytelność stref, górny HUD oraz konstrukcję komory, aby haki i mięso były widoczne.
+
+## Eksporty i platformy
+
+- Linux w środowisku chmurowym: logika i renderowanie sprawdzone.
+- Windows: projektu nie wyeksportowano ani nie uruchomiono jako EXE.
+- Web/HTML5: projektu nie wyeksportowano ani nie uruchomiono w przeglądarce.
+- Android: projektu nie wyeksportowano ani nie uruchomiono na urządzeniu.
+
+Środowisko nie zawiera szablonów eksportu Godot 4.7.2. Nie ma również Android SDK, `adb` ani Gradle; dostępne środowisko Java samo nie wystarcza do wygenerowania APK. Katalog `builds/` jest przeznaczony na przyszłe lokalne artefakty i pozostaje poza repozytorium.
 
 ## Granice walidacji
 
-- Zdarzenia dotyku i powiadomienia uśpienia symulowano w Godot; nie testowano ich na fizycznym urządzeniu.
-- Nie wykonano testów Android/iOS ani Windows, eksportu APK/EXE, podpisywania ani publikacji w sklepie.
-- Nie zmierzono wydajności ani zużycia baterii na telefonie. Obraz testowano przy użyciu renderowania programowego na Linux.
-- Efekty dźwiękowe są syntezowane w grze; headless nie odtwarza dźwięku. Test graficzny korzystał z wyjścia Dummy, więc nie oceniono odsłuchu na urządzeniu.
-- Sterownik testowy zgłasza brak obsługi zmiany V-Sync. To ograniczenie wirtualnego wyświetlacza.
-- Aktualna wersja nie ma przyrostu offline ani automatycznej kolejki partii. Produkcja poza warsztatem jest celowo wstrzymana.
+- Mysz i rozdzielczość 960×540 zostały sprawdzone; dotyk, gesty, safe areas i uśpienie wymagają fizycznego telefonu lub tabletu.
+- Nie wykonano pomiarów GPU, pamięci, czasu klatki ani zużycia baterii na sprzęcie docelowym.
+- Dźwięk korzysta ze starszego systemu projektu i nie był odsłuchiwany w teście z wyjściem Dummy.
+- HACCP, wydajność suszenia i czasy są mechaniką edukacyjnej gry, nie walidacją procesu spożywczego.
+- Obecna wersja nie zawiera jeszcze swobodnego trybu budowy, zatrudniania załogi, losowych awarii, incydentów jakości ani postępu offline.
 
-Te wyniki potwierdzają grywalność sceny i logiki prototypu w sprawdzonym środowisku, a nie gotowość do publikacji komercyjnej.
+Wyniki potwierdzają stabilny pionowy wycinek na sprawdzonej konfiguracji Linux. Nie oznaczają gotowości komercyjnej ani zgodności platform, których nie zbudowano.

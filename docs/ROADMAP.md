@@ -1,33 +1,37 @@
-# Craft Empire Tycoon — roadmapa
+# MeatCraft Empire 3D — roadmapa
 
-## Etap 1 — obecny prototyp
+## Ukończony pionowy wycinek
 
-- Jeden warsztat izometryczny i suszone przekąski.
-- Przygotowanie, suszenie, pakowanie, transport i automatyczna sprzedaż.
-- Trzy ulepszane maszyny, cztery rangi firmy i ekonomia bez płatności.
-- Menu, kontynuacja, ustawienia, zapis z kopią oraz języki EN/PL.
-- Oryginalna grafika proceduralna, animacje i krótkie dźwięki.
+- Zakup małego warsztatu i uruchomienie działalności MeatCraft.
+- Pełna linia 3D od przyjęcia dostawy do wysyłki.
+- Trzech dostawców, trzy receptury, zapasy i identyfikowalność partii.
+- Siedmiodniowe suszenie z widocznym mięsem i obowiązkową kontrolą w 3,5. dniu.
+- Bilans masy, opakowania, sprzedaż, koszty, reputacja, higiena i konserwacja.
+- Menu, tutorial, panele zarządzania, zapis v2 oraz lokalizacja EN/PL.
+- Automatyczne testy symulacji i rzeczywistego renderowania.
 
-## Etap 2 — walidacja mobilna i dopracowanie gry
+## Następny etap — zarządzanie fabryką
 
-1. Skonfigurować szablony eksportu Godot 4.7.2 oraz Android SDK/JDK; utworzyć testowy APK i eksport Windows.
-2. Sprawdzić dotyk, obszary bezpieczne, uśpienie/wznowienie i czytelność na telefonie oraz tablecie.
-3. Zmierzyć klatki, pobór pamięci i baterii na telefonie średniej klasy. Ograniczyć odrysowywanie statycznej części warsztatu, jeśli wyniki tego wymagają.
-4. Przeprowadzić krótkie testy z graczami: czy rozumieją pierwszą partię, koszt ulepszenia i wzrost zysku?
-5. Dopracować modele maszyn, animowane postacie, dźwięki tła, pierwsze cele i komunikaty o rozwoju.
+1. Dodać pracowników jako jednostki z rolami, zmianami, wynagrodzeniem, zmęczeniem i zadaniami.
+2. Zaimplementować awarie, części, naprawy, przestoje i plan konserwacji dla każdej maszyny.
+3. Rozwinąć HACCP o parametry temperatury i wilgotności, odchylenia, kwarantannę oraz decyzję o przeróbce lub utylizacji.
+4. Dodać zlecenia klientów z terminami, minimalną jakością i karami za opóźnienie.
+5. Zbudować pierwszy tryb rozmieszczania urządzeń na siatce z walidacją stref i przejść.
 
-## Etap 3 — rozszerzenie zawartości
+## Następnie — rozwój firmy
 
-- Drugie receptury i stanowiska konfigurowane danymi.
-- Magazyn, zamówienia i ograniczona kolejka produkcji.
-- Kolejny warsztat oraz ulepszenia kosmetyczne.
-- Migracje zapisów i rozszerzone testy ekonomii przed nową zawartością.
+- Odblokowanie średniej i dużej hali, wielu linii oraz większego magazynu.
+- Umowy z dostawcami, zmienne ceny, partie o różnej jakości i zdarzenia rynkowe.
+- Produkty whole/sliced, różne gramatury, etykiety i planowanie produkcji.
+- Cele kolejnych rozdziałów, osiągnięcia i dłuższy balans ekonomii.
+- Opcjonalny, ograniczony i walidowany postęp offline.
 
-## Etap 4 — przygotowanie do darmowej publikacji
+## Walidacja platform
 
-- Opcjonalne reklamy z nagrodą dopiero po sprawdzeniu ekonomii i dobrowolności.
-- Zwykła waluta premium, kosmetyki, zestawy startowe i wydarzenia; bez blockchaina.
-- Oddzielna warstwa platformowa dla reklam i sklepów; podstawowa produkcja działa bez niej.
-- Wymagania sklepu, dostępność, prywatność, lokalizacja i testy aktualizacji zapisów.
+1. Zainstalować oficjalne szablony eksportu Godot 4.7.2.
+2. Wygenerować i sprawdzić Windows x86-64 oraz Web/HTML5.
+3. Skonfigurować Android SDK/JDK, wygenerować debug APK i przetestować na telefonie oraz tablecie.
+4. Sprawdzić dotyk, gesty, safe areas, zmianę orientacji, uśpienie i wznowienie.
+5. Zmierzyć czas klatki, pamięć i baterię na słabszym urządzeniu; dopiero na podstawie pomiarów optymalizować modele i aktualizacje symulacji.
 
-Kolejne etapy wymagają osobnych decyzji produktowych. Nie są częścią obecnego prototypu.
+Publikacja sklepowa, płatności, reklamy i wdrożenie na żywą stronę nie należą do obecnego etapu.
