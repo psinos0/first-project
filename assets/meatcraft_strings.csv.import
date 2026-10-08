@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://du4a7jvywvwu5"
+
+[deps]
+
+files=["res://assets/meatcraft_strings.en.translation", "res://assets/meatcraft_strings.pl.translation"]
+
+source_file="res://assets/meatcraft_strings.csv"
+dest_files=["res://assets/meatcraft_strings.en.translation", "res://assets/meatcraft_strings.pl.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

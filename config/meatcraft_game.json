@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "starting_cash": 48000.0,
+  "small_hall_cost": 12000.0,
+  "starter_line_cost": 16500.0,
+  "game_minutes_per_real_second": 20.0,
+  "drying_yield": 0.50,
+  "preparation_yield": 0.94,
+  "pack_size_kg": 0.05,
+  "packaging_cost": 0.18,
+  "starting_packaging": 120,
+  "packaging_restock_quantity": 100,
+  "packaging_restock_cost": 24.0,
+  "electricity_per_batch": 38.0,
+  "maintenance_cost": 280.0,
+  "stages": {
+    "preparation": 90.0,
+    "spice_prep": 30.0,
+    "marination": 1440.0,
+    "hanging": 45.0,
+    "drying": 10080.0,
+    "slicing": 90.0,
+    "packaging": 60.0
+  },
+  "suppliers": {
+    "economy": {"name": "Northfield Value Meats", "price_per_kg": 6.20, "lead_minutes": 360.0, "quality": 0.78},
+    "standard": {"name": "Oakridge Foods", "price_per_kg": 7.40, "lead_minutes": 240.0, "quality": 0.88},
+    "premium": {"name": "Highland Select Beef", "price_per_kg": 9.10, "lead_minutes": 180.0, "quality": 0.96}
+  },
+  "recipes": {
+    "coriander": {"name": "Coriander Biltong", "spice": "coriander", "spice_units": 2, "sale_per_pack": 3.85, "colour": "c78a4b", "allergens": ["soy", "gluten"], "claim": "No added sugar"},
+    "chilli": {"name": "Chilli Biltong", "spice": "chilli", "spice_units": 2, "sale_per_pack": 4.10, "colour": "b94f39", "allergens": ["soy", "gluten"], "claim": "No added sugar"},
+    "bbq": {"name": "BBQ Biltong", "spice": "bbq", "spice_units": 2, "sale_per_pack": 4.25, "colour": "8c4f34", "allergens": ["soy", "gluten"], "claim": "Contains sugar and honey"}
+  }
+}
