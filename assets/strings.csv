@@ -1,0 +1,83 @@
+keys,en,pl
+A fresh beginning?,A fresh beginning?,Zacząć od nowa?
+"A little workshop, a real empire.","A little workshop, a real empire.","Mały warsztat, prawdziwe imperium."
+"A little workshop. A big ambition.
+Turn honest ingredients into your own empire.","A little workshop. A big ambition.
+Turn honest ingredients into your own empire.","Mały warsztat. Wielkie ambicje.
+Z dobrych składników zbuduj własne imperium."
+AVAILABLE COINS,AVAILABLE COINS,DOSTĘPNE MONETY
+Back to the workshop,Back to the workshop,Powrót do warsztatu
+Batch delivered! +{coins} coins,Batch delivered! +{coins} coins,Partia dostarczona! +{coins} monet
+Batch size: {units} snacks,Batch size: {units} snacks,Wielkość partii: {units} przekąsek
+Batches delivered: {count},Batches delivered: {count},Dostarczone partie: {count}
+Cancel,Cancel,Anuluj
+Continue workshop,Continue workshop,Kontynuuj grę
+Corner workshop,Corner workshop,Osiedlowy warsztat
+Could not save. Check available storage.,Could not save. Check available storage.,Nie udało się zapisać gry. Sprawdź wolne miejsce.
+Craft empire,Craft empire,Rzemieślnicze imperium
+Crafting,Crafting,Produkcja
+Cycle: {seconds}s,Cycle: {seconds}s,Cykl: {seconds}s
+DISPATCH,DISPATCH,WYSYŁKA
+Delivery,Delivery,Dostawa
+Done,Done,Gotowe
+Dried snacks,Dried snacks,Suszone przekąski
+Drying,Drying,Suszenie
+"Fresh ingredients, big possibilities.","Fresh ingredients, big possibilities.","Świeże składniki, wielkie możliwości."
+Fully upgraded,Fully upgraded,Maksymalny poziom
+GOOD THINGS TAKE CRAFT.,GOOD THINGS TAKE CRAFT.,DOBRE RZECZY WYMAGAJĄ KUNSZTU.
+HANDCRAFTED SNACKS  /  CHAPTER 01,HANDCRAFTED SNACKS  /  CHAPTER 01,RZEMIEŚLNICZE PRZEKĄSKI  /  ROZDZIAŁ 01
+Handcrafted dried snacks,Handcrafted dried snacks,Rzemieślnicze suszone przekąski
+Ingredients: {cost} coins  •  Sale: {revenue} coins,Ingredients: {cost} coins  •  Sale: {revenue} coins,Składniki: {cost} monet  •  Sprzedaż: {revenue} monet
+Keep {coins} coins for ingredients. Upgrades apply to the next batch.,Keep {coins} coins for ingredients. Upgrades apply to the next batch.,Zachowaj {coins} monet na składniki. Ulepszenia działają od następnej partii.
+Keep enough coins for your next batch.,Keep enough coins for your next batch.,Zachowaj monety na następną partię.
+LEVEL {level} / {max},LEVEL {level} / {max},POZIOM {level} / {max}
+LOCAL MARKET,LOCAL MARKET,LOKALNY RYNEK
+Language: English / Polski,Language: English / Polski,Język: Polski / English
+Lifetime sales: {coins} coins,Lifetime sales: {coins} coins,Łączna sprzedaż: {coins} monet
+Local favourite,Local favourite,Lokalny faworyt
+"Local saves • no account needed
+Production pauses when you leave the workshop.","Local saves • no account needed
+Production pauses when you leave the workshop.","Zapis lokalny • bez zakładania konta
+Produkcja zatrzymuje się poza warsztatem."
+Lv. {level},Lv. {level},Poz. {level}
+Machine upgraded. Your next batch gets better.,Machine upgraded. Your next batch gets better.,Maszyna ulepszona. Następna partia będzie lepsza.
+Made with care,Made with care,Z troską o jakość
+Make yourself at home.,Make yourself at home.,Poczuj się jak u siebie.
+Menu,Menu,Menu
+Moving to {station}…,Moving to {station}…,Transport: {station}…
+Neighbourhood staple,Neighbourhood staple,Ulubieniec okolicy
+New game,New game,Nowa gra
+Open your workshop,Open your workshop,Otwórz swój warsztat
+PRODUCTION LINE,PRODUCTION LINE,LINIA PRODUKCYJNA
+Packaging,Packaging,Pakowanie
+"Packed with care, sent with pride. Every finished batch sells automatically.","Packed with care, sent with pride. Every finished batch sells automatically.","Starannie zapakowane, gotowe do drogi. Każda partia sprzedaje się automatycznie."
+Preparation,Preparation,Przygotowanie
+Progress saved on this device,Progress saved on this device,Postęp zapisany na tym urządzeniu
+Ready for dispatch,Ready for dispatch,Gotowe do wysyłki
+Reduce ambient motion,Reduce ambient motion,Ogranicz animacje otoczenia
+SETTINGS,SETTINGS,USTAWIENIA
+Sale value: {coins} coins,Sale value: {coins} coins,Wartość sprzedaży: {coins} monet
+Save failed — check device storage,Save failed — check device storage,Błąd zapisu — sprawdź pamięć urządzenia
+Seal in the goodness. Beautiful packaging earns a better sale price.,Seal in the goodness. Beautiful packaging earns a better sale price.,Zachowaj dobry smak. Ładne opakowanie podnosi cenę sprzedaży.
+Settings,Settings,Ustawienia
+Slice fresh ingredients. Bigger batches begin with better preparation.,Slice fresh ingredients. Bigger batches begin with better preparation.,Pokrój świeże składniki. Lepsze przygotowanie to większe partie.
+"Slow craft, made faster. Warm-air drying brings out every bit of flavour.","Slow craft, made faster. Warm-air drying brings out every bit of flavour.",Rzemiosło w szybszym tempie. Ciepłe powietrze wydobywa pełnię smaku.
+Cycle time per upgrade: −{percent}%,Cycle time per upgrade: −{percent}%,Czas cyklu na ulepszenie: −{percent}%
+Start a batch,Start a batch,Rozpocznij partię
+Start fresh,Start fresh,Zacznij od nowa
+THE FIRST WORKSHOP,THE FIRST WORKSHOP,PIERWSZY WARSZTAT
+THE SMALL-BATCH COMPANY,THE SMALL-BATCH COMPANY,"MAŁA PRACOWNIA, WIELKIE MOŻLIWOŚCI"
+TODAY'S SPECIAL,TODAY'S SPECIAL,SPECJALNOŚĆ DNIA
+Tap a machine to improve it,Tap a machine to improve it,"Dotknij maszyny, aby ją ulepszyć"
+The first workshop,The first workshop,Pierwszy warsztat
+"This replaces your saved workshop.
+Your settings will stay the same.","This replaces your saved workshop.
+Your settings will stay the same.","To zastąpi zapisany warsztat.
+Twoje ustawienia pozostaną bez zmian."
+Upgrade • {coins} coins,Upgrade • {coins} coins,Ulepsz • {coins} monet
+Workshop sounds,Workshop sounds,Dźwięki warsztatu
+YOUR GROWING EMPIRE,YOUR GROWING EMPIRE,TWOJE ROSNĄCE IMPERIUM
+Your next chapter starts here.,Your next chapter starts here.,Tutaj zaczyna się Twoja historia.
+{coins} / {target} lifetime sales,{coins} / {target} lifetime sales,{coins} / {target} łącznej sprzedaży
+{station} in progress • {seconds}s left,{station} in progress • {seconds}s left,{station} • pozostało {seconds}s
+{units} per batch,{units} per batch,{units} w partii

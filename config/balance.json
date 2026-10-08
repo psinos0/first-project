@@ -1,0 +1,26 @@
+{
+  "save_version": 1,
+  "starting_coins": 120,
+  "batch_cost": 12,
+  "base_units": 8,
+  "base_revenue": 42,
+  "capacity_per_level": 2,
+  "revenue_per_capacity_level": 6,
+  "revenue_per_packaging_level": 10,
+  "upgrade_cost_factor": 1.65,
+  "speed_factor": 0.85,
+  "max_level": 8,
+  "transfer_seconds": 0.7,
+  "stages": [
+    {"id": "prep", "name": "Preparation", "seconds": 3.0, "upgrade_cost": 45},
+    {"id": "dry", "name": "Drying", "seconds": 4.5, "upgrade_cost": 60},
+    {"id": "pack", "name": "Packaging", "seconds": 2.5, "upgrade_cost": 55},
+    {"id": "sell", "name": "Delivery", "seconds": 0.8, "upgrade_cost": 0}
+  ],
+  "ranks": [
+    {"name": "Corner workshop", "earned": 0},
+    {"name": "Local favourite", "earned": 160},
+    {"name": "Neighbourhood staple", "earned": 500},
+    {"name": "Craft empire", "earned": 1400}
+  ]
+}
