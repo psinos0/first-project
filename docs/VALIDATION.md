@@ -8,6 +8,7 @@ Silnik: **Godot 4.7.2 Stable**, `4.7.2.stable.official.ed1daf0bf`, Linux x86-64.
 - Regresja zachowanego prototypu 2D: **43 sprawdzenia, 0 niepowodzeń**.
 - Symulacja MeatCraft 3D: **41 sprawdzeń, 0 niepowodzeń**.
 - Integracja z rzeczywistym renderowaniem OpenGL przez Xorg dummy i Mesa llvmpipe: **21 sprawdzeń, 0 niepowodzeń**.
+- Czysta paczka ZIP utworzona z zatwierdzonego drzewa Git: świeży import bez pamięci `.godot`, następnie ponownie **43/43** i **41/41** sprawdzeń.
 
 Nowa symulacja sprawdza zakup hali i linii, koszty, blokady podwójnych działań, dostawę, zużycie składników, wszystkie etapy, obowiązkową kontrolę w połowie suszenia, bilans 10 kg → 9,4 kg → 4,7 kg → 94 × 50 g, pakowanie, jednokrotne naliczenie sprzedaży, deklaracje receptur, konserwację, czyszczenie oraz zapis i wznowienie aktywnego marynowania.
 

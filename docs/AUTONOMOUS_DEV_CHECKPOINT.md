@@ -36,6 +36,7 @@ Aktywna faza to koniec fazy pierwszego pionowego wycinka i początek rozwoju sys
 - `./scripts/test.sh`: regresja 2D **43/43**, symulacja MeatCraft **41/41**.
 - Test OpenGL/Compatibility z Xorg dummy i Mesa llvmpipe: **21/21**.
 - Oględziny aktualnych zrzutów 1280×800 i 960×540.
+- Import i oba zestawy testów logiki powtórzone z czystej paczki `MeatCraft-Empire-3D.zip`.
 
 Zweryfikowano zakup, koszty, dostawę, stany magazynowe, pełną maszynę stanów, kontrolę w 3,5. dniu, bilans masy, pakowanie, sprzedaż, konserwację, higienę, zapis/wczytanie, collidery 3D, polski interfejs i układ minimalny.
 
