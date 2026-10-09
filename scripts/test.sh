@@ -9,3 +9,5 @@ echo "Running the 2D prototype regression suite..."
 "$CRAFT_GODOT" --headless --path "$CRAFT_PROJECT_ROOT" --script res://scripts/tests/gameplay_test.gd
 echo "Running the MeatCraft 3D simulation suite..."
 "$CRAFT_GODOT" --headless --path "$CRAFT_PROJECT_ROOT" --script res://scripts/tests/meatcraft_simulation_test.gd
+echo "Running the MeatCraft factory operations suite..."
+"$CRAFT_GODOT" --headless --path "$CRAFT_PROJECT_ROOT" --script res://scripts/tests/meatcraft_operations_test.gd

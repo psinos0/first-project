@@ -13,6 +13,7 @@ const FLOOR := Color("687371")
 const CLEAN := Color("d9ddd8")
 var machines: Dictionary = {}
 var machine_lights: Dictionary = {}
+var machine_status_labels: Dictionary = {}
 var fans: Array[Node3D] = []
 var conveyor_items: Array[Node3D] = []
 var meat_strips: Array[MeshInstance3D] = []
@@ -35,7 +36,7 @@ func _process(delta: float) -> void:
 	var active: bool = not MeatGame.active_batch.is_empty()
 	var stage := str(MeatGame.active_batch.get("stage", ""))
 	for fan in fans:
-		if stage == "drying" and not bool(MeatGame.active_batch.get("inspection_required", false)):
+		if stage == "drying" and not bool(MeatGame.active_batch.get("inspection_required", false)) and MeatGame.machinery.can_operate("DRY-001"):
 			fan.rotate_object_local(Vector3.FORWARD, delta * 4.5 * MeatGame.time_scale)
 	for i in range(conveyor_items.size()):
 		var item: Node3D = conveyor_items[i]
@@ -44,10 +45,7 @@ func _process(delta: float) -> void:
 			item.visible = true
 		else:
 			item.visible = false
-	for i in range(workers.size()):
-		var worker: Node3D = workers[i]
-		var base_y: float = float(worker.get_meta("base_y", worker.position.y))
-		worker.position.y = base_y + (sin(elapsed * 2.0 + i * 1.7) * 0.025 if not MeatGame.reduced_motion else 0.0)
+	_update_workers(delta)
 	if stage != _last_visual_stage:
 		_last_visual_stage = stage
 		_update_state()
@@ -248,9 +246,9 @@ func _build_storage() -> void:
 	_floor_label("DISPATCH", Vector3(0, 1.5, 3.65), BRAND, root)
 
 func _build_workers() -> void:
-	workers.append(_worker(Vector3(-5.7, 0, 2.6), Color("50a7bb"), "Alex"))
-	workers.append(_worker(Vector3(4.8, 0, -0.8), Color("4b94b8"), "Sam"))
-	workers.append(_worker(Vector3(8.2, 0, 5.8), Color("e09838"), "Maya"))
+	var colours := [Color("50a7bb"), Color("4b94b8"), Color("e09838"), Color("6e9d62"), Color("ae6a8f"), Color("617db0"), Color("c7754d"), Color("7b6ea8")]
+	for index in range(8):
+		workers.append(_worker(Vector3(-9.7 + index * 0.65, 0, -6.9), colours[index], "Slot%d" % (index + 1)))
 
 func _worker(at: Vector3, cap_colour: Color, worker_name: String) -> Node3D:
 	var root := Node3D.new()
@@ -267,6 +265,17 @@ func _worker(at: Vector3, cap_colour: Color, worker_name: String) -> Node3D:
 	for side in [-1.0, 1.0]:
 		var arm := _cylinder(root, "Arm", Vector3(side * 0.43, 1.5, 0.05), 0.105, 0.78, Color("ecf0e9"), 0.0, 0.82)
 		arm.rotation_degrees.z = side * 9.0
+	var label := Label3D.new()
+	label.name = "WorkerLabel"
+	label.font = load("res://assets/Heading.ttf")
+	label.font_size = 24
+	label.pixel_size = 0.006
+	label.position = Vector3(0, 2.75, 0)
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.modulate = Color("f4f1e9")
+	label.outline_size = 5
+	label.outline_modulate = Color("183032")
+	root.add_child(label)
 	return root
 
 func _machine_root(id: String, display_name: String, at: Vector3, hitbox: Vector3) -> Node3D:
@@ -288,6 +297,21 @@ func _machine_root(id: String, display_name: String, at: Vector3, hitbox: Vector
 	shape.position.y = hitbox.y * 0.5
 	body.add_child(shape)
 	root.add_child(body)
+	var beacon := _light(root, Vector3(0, hitbox.y + 0.28, 0), Color("68736c"))
+	beacon.scale = Vector3.ONE * 1.35
+	machine_lights[id] = beacon
+	var status_label := Label3D.new()
+	status_label.text = "IDLE"
+	status_label.font = load("res://assets/Heading.ttf")
+	status_label.font_size = 22
+	status_label.pixel_size = 0.005
+	status_label.position = Vector3(0, hitbox.y + 0.62, 0)
+	status_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	status_label.modulate = Color("d9e2dc")
+	status_label.outline_size = 4
+	status_label.outline_modulate = Color("213437")
+	root.add_child(status_label)
+	machine_status_labels[id] = status_label
 	machines[id] = root
 	return root
 
@@ -327,7 +351,18 @@ func _update_state() -> void:
 	for id in machine_lights:
 		var light: MeshInstance3D = machine_lights[id]
 		var active: bool = str(id) == stage or (str(id) == "dryer" and stage == "drying")
-		light.material_override = _material(Color("61e58b") if active else Color("68736c"), 0.1, 0.28, Color("42d779") if active else Color.BLACK, 2.2 if active else 0.0)
+		var record := MeatGame.machine_record(str(id))
+		var status := str(record.get("operating_status", "idle"))
+		var colour := Color("68736c")
+		if status in ["broken", "waiting_for_technician"]: colour = Color("d04436")
+		elif status == "under_repair": colour = Color("4f8fc4")
+		elif status == "maintenance_recommended": colour = Color("dfa33b")
+		elif active: colour = Color("61e58b")
+		light.material_override = _material(colour, 0.1, 0.28, colour, 2.2 if active or status != "idle" else 0.35)
+		if machine_status_labels.has(id):
+			var status_label: Label3D = machine_status_labels[id]
+			status_label.text = tr(status.replace("_", " ").to_upper())
+			status_label.modulate = colour.lightened(0.28)
 	var show_meat: bool = stage in ["hanging", "drying", "slicing", "packaging"]
 	var dry_progress: float = MeatGame.stage_progress() if stage == "drying" else (1.0 if stage in ["slicing", "packaging"] else 0.0)
 	for i in range(meat_strips.size()):
@@ -339,6 +374,47 @@ func _update_state() -> void:
 
 func _on_stage_changed(_stage: String) -> void:
 	_update_state()
+
+func _update_workers(delta: float) -> void:
+	var employee_count := MeatGame.workforce.employees.size()
+	for index in range(workers.size()):
+		var worker: Node3D = workers[index]
+		worker.visible = index < employee_count and MeatGame.starter_line_owned
+		if not worker.visible:
+			continue
+		var employee: Dictionary = MeatGame.workforce.employees[index]
+		worker.set_meta("employee_id", employee.employee_id)
+		var label: Label3D = worker.get_node("WorkerLabel")
+		var role: Dictionary = MeatGame.config.workforce.roles.get(str(employee.role_id), {})
+		label.text = "%s\n%s" % [employee.display_name, tr(str(role.get("name", employee.role_id)))]
+		var target := Vector3(-9.8 + index * 0.65, 0, -6.8)
+		var task := MeatGame.workforce.get_task(str(employee.current_task_id))
+		var target_machine := str(employee.assigned_machine_id)
+		if not task.is_empty():
+			target_machine = str(task.machine_id)
+		var visual_id := _visual_machine_id(target_machine)
+		if machines.has(visual_id):
+			target = machines[visual_id].global_position + _worker_offset(visual_id, index)
+		var flat_target := Vector3(target.x, 0, target.z)
+		var distance := worker.global_position.distance_to(flat_target)
+		worker.global_position = worker.global_position.move_toward(flat_target, delta * (3.6 if distance > 0.2 else 0.0))
+		var base_y := 0.0
+		worker.position.y = base_y + (sin(elapsed * (5.0 if distance > 0.2 else 2.0) + index) * 0.035 if not MeatGame.reduced_motion else 0.0)
+
+func _visual_machine_id(record_id: String) -> String:
+	return {
+		"PREP-001": "preparation", "SPICE-001": "spice_prep", "MAR-001": "marination",
+		"DRY-001": "dryer", "SLICE-001": "slicing", "PACK-001": "packaging"
+	}.get(record_id, record_id)
+
+func _worker_offset(machine_id: String, index: int) -> Vector3:
+	var base: Dictionary = {
+		"preparation": Vector3(0.4, 0, 1.8), "spice_prep": Vector3(0.7, 0, 1.7),
+		"marination": Vector3(0, 0, 1.8), "dryer": Vector3(0, 0, 3.1),
+		"slicing": Vector3(-0.8, 0, 1.7), "packaging": Vector3(0, 0, 1.7),
+		"dispatch": Vector3(0, 0, 3.8)
+	}
+	return Vector3(base.get(machine_id, Vector3.ZERO)) + Vector3((index % 2) * 0.55, 0, (index % 3) * 0.28)
 
 func _zone(position: Vector3, size: Vector3, colour: Color) -> void:
 	_box(self, "HygieneZone", position, size, colour, 0.0, 0.9)

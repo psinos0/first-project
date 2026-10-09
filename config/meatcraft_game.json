@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "starting_cash": 48000.0,
   "small_hall_cost": 12000.0,
   "starter_line_cost": 16500.0,
@@ -13,6 +13,60 @@
   "packaging_restock_cost": 24.0,
   "electricity_per_batch": 38.0,
   "maintenance_cost": 280.0,
+  "workforce": {
+    "max_employees": 8,
+    "pay_period_minutes": 1440.0,
+    "fatigue_per_work_hour": 2.8,
+    "recovery_per_idle_hour": 1.6,
+    "starter_roles": ["production_operator", "packaging_operator", "quality_technician"],
+    "names": ["Alex Morgan", "Sam Rivera", "Maya Ellis", "Jordan Blake", "Riley Chen", "Taylor Okafor", "Casey Patel", "Morgan Silva"],
+    "roles": {
+      "production_operator": {"name": "Production Operator", "hire_cost": 350.0, "daily_wage": 95.0, "shift_start": 0, "shift_end": 1440},
+      "packaging_operator": {"name": "Packaging Operator", "hire_cost": 300.0, "daily_wage": 82.0, "shift_start": 0, "shift_end": 1440},
+      "maintenance_technician": {"name": "Maintenance Technician", "hire_cost": 520.0, "daily_wage": 130.0, "shift_start": 0, "shift_end": 1440},
+      "quality_technician": {"name": "Quality Technician", "hire_cost": 430.0, "daily_wage": 110.0, "shift_start": 0, "shift_end": 1440}
+    }
+  },
+  "machines": {
+    "wear_per_hour": 0.035,
+    "service_warning_condition": 65.0,
+    "automatic_fault_condition": 28.0,
+    "repair_duration": 120.0,
+    "parts_restock_cost": 220.0,
+    "starting_parts": {"mechanical_parts": 1, "electrical_parts": 1, "fan_components": 1, "sealing_elements": 1},
+    "restock_bundle": {"mechanical_parts": 1, "electrical_parts": 1, "fan_components": 1, "sealing_elements": 1},
+    "stage_machine": {"preparation": "PREP-001", "spice_prep": "SPICE-001", "marination": "MAR-001", "hanging": "DRY-001", "drying": "DRY-001", "slicing": "SLICE-001", "packaging": "PACK-001"},
+    "records": {
+      "PREP-001": {"type": "preparation", "name": "Preparation Table", "maintenance_interval": 120.0},
+      "SPICE-001": {"type": "spice_prep", "name": "Spice Station", "maintenance_interval": 100.0},
+      "MAR-001": {"type": "marination", "name": "Marination Drums", "maintenance_interval": 140.0},
+      "DRY-001": {"type": "dryer", "name": "Drying Chamber DC-01", "maintenance_interval": 220.0},
+      "SLICE-001": {"type": "slicing", "name": "Precision Slicer SL-01", "maintenance_interval": 90.0},
+      "PACK-001": {"type": "packaging", "name": "Packaging Line PK-01", "maintenance_interval": 110.0}
+    },
+    "faults": {
+      "test_fault": {"description": "Deterministic safety stop", "severity": "major", "repair_cost": 180.0, "part": "electrical_parts"},
+      "wear_fault": {"description": "Wear-related mechanical fault", "severity": "major", "repair_cost": 210.0, "part": "mechanical_parts"},
+      "dryer_fan_failure": {"description": "Drying chamber fan failure", "severity": "critical", "repair_cost": 260.0, "part": "fan_components"},
+      "packaging_jam": {"description": "Packaging sealer jam", "severity": "minor", "repair_cost": 145.0, "part": "sealing_elements"}
+    }
+  },
+  "quality": {
+    "corrective_action_duration": 60.0,
+    "incidents": {
+      "dryer_monitoring_fault": {"description": "Dryer monitoring record interrupted", "severity": "major", "action": "reinspect", "hold_batch": true},
+      "allergen_label_error": {"description": "Allergen declaration requires correction", "severity": "major", "action": "relabel", "hold_batch": true},
+      "contamination_risk": {"description": "Potential contamination risk requires rejection", "severity": "critical", "action": "reject", "hold_batch": true},
+      "supplier_documentation": {"description": "Supplier documentation is incomplete", "severity": "warning", "action": "verify_documents", "hold_batch": false}
+    }
+  },
+  "contracts": {
+    "templates": {
+      "small_retail": {"customer": "Riverside Deli", "recipe_id": "coriander", "quantity": 60, "unit_price": 4.35, "deadline_minutes": 17280.0, "required_quality": 0.72, "penalty": 45.0},
+      "wholesale": {"customer": "North Market Foods", "recipe_id": "chilli", "quantity": 90, "unit_price": 4.20, "deadline_minutes": 23040.0, "required_quality": 0.80, "penalty": 80.0},
+      "premium_retail": {"customer": "The Pantry Club", "recipe_id": "bbq", "quantity": 90, "unit_price": 4.85, "deadline_minutes": 28800.0, "required_quality": 0.90, "penalty": 120.0}
+    }
+  },
   "stages": {
     "preparation": 90.0,
     "spice_prep": 30.0,

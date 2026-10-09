@@ -307,10 +307,11 @@ func _build_hud() -> void:
 	nav.add_theme_constant_override("separation", 8)
 	left_margin.add_child(nav)
 	_label(nav, tr("MANAGEMENT"), 10, Color("7f9a91"), true)
-	for item in [["production", tr("Production")], ["inventory", tr("Inventory")], ["orders", tr("Orders")], ["haccp", "HACCP"], ["finance", tr("Finance")]]:
+	for item in [["production", tr("Production")], ["planning", tr("Planning")], ["employees", tr("Employees")], ["inventory", tr("Inventory")], ["orders", tr("Contracts")], ["haccp", "HACCP"], ["finance", tr("Finance")]]:
 		var tab_id: String = item[0]
 		var nav_button := _button(nav, str(item[1]), func(): _set_tab(tab_id))
 		nav_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		nav_button.custom_minimum_size.y = 43
 	var sep := HSeparator.new()
 	nav.add_child(sep)
 	_label(nav, tr("EQUIPMENT"), 10, Color("7f9a91"), true)
@@ -334,15 +335,27 @@ func _build_hud() -> void:
 	right.offset_top = 88
 	var right_margin := _margin(right, 22)
 	var panel_column := VBoxContainer.new()
+	panel_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel_column.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel_column.add_theme_constant_override("separation", 14)
 	right_margin.add_child(panel_column)
 	panel_title = _label(panel_column, tr("Production control"), 24, INK, true)
 	var separator := HSeparator.new()
 	panel_column.add_child(separator)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# BoxContainer needs a concrete viewport height here. Without it the dynamic
+	# panel body can resolve to a zero-height scroll viewport on the first frame.
+	scroll.custom_minimum_size = Vector2(318, maxf(360.0, size.y - 210.0))
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	panel_column.add_child(scroll)
 	panel_body = VBoxContainer.new()
-	panel_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	panel_body.custom_minimum_size.x = 318
+	panel_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel_body.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	panel_body.add_theme_constant_override("separation", 11)
-	panel_column.add_child(panel_body)
+	scroll.add_child(panel_body)
 
 	var objective := _panel(content, Color(0.055, 0.13, 0.13, 0.97), 14)
 	objective_panel = objective
@@ -403,6 +416,8 @@ func _refresh_side_panel() -> void:
 		install.disabled = MeatGame.cash < float(MeatGame.config.starter_line_cost)
 		return
 	match current_tab:
+		"planning": _planning_panel()
+		"employees": _employees_panel()
 		"inventory": _inventory_panel()
 		"orders": _orders_panel()
 		"haccp": _haccp_panel()
@@ -426,6 +441,13 @@ func _production_panel() -> void:
 		_status_badge(MeatGame.stage_name(str(batch.stage)).to_upper(), BRAND)
 		_label(panel_body, "%s • %s" % [batch.id, tr(str(batch.recipe_name))], 20, INK, true)
 		_label(panel_body, tr("Traceability lot: {lot}").format({"lot": batch.supplier_lot}), 13, Color("66736f"))
+		var blocker := str(batch.get("blocker", ""))
+		if not blocker.is_empty():
+			_status_badge(_blocker_text(blocker), GOLD if blocker != "machine_broken" else BRAND)
+		var task := MeatGame.workforce.get_task(str(batch.get("task_id", "")))
+		if not task.is_empty() and not str(task.get("assigned_employee_id", "")).is_empty():
+			var employee := MeatGame.workforce.get_employee(str(task.assigned_employee_id))
+			_label(panel_body, tr("Assigned: {name} • {task}").format({"name": employee.display_name, "task": tr(str(task.task_type).replace("_", " "))}), 13, Color("556762"), true)
 		_progress(panel_body, MeatGame.stage_progress())
 		_label(panel_body, tr("{percent}% • {time} remaining").format({"percent": roundi(MeatGame.stage_progress() * 100.0), "time": _duration(MeatGame.stage_remaining())}), 15, TEAL, true)
 		if str(batch.stage) == "drying":
@@ -462,6 +484,106 @@ func _production_panel() -> void:
 			var recipe_button := _button(panel_body, "%s\n%s • %s" % [tr(str(recipe.name)), tr(str(recipe.claim)), tr("Allergens: soy, gluten")], MeatGame.start_batch.bind(recipe_id, 10.0), recipe_id == "coriander")
 			recipe_button.tooltip_text = tr("BBQ contains sugar and honey; no sugar-free claim is made.") if recipe_id == "bbq" else tr(str(recipe.claim))
 
+func _planning_panel() -> void:
+	panel_title.text = tr("Production planning")
+	_status_badge(tr("LIVE SCHEDULE"), TEAL)
+	if MeatGame.active_batch.is_empty():
+		_label(panel_body, tr("No active batch. The starter line accepts one scheduled batch at a time."), 14, Color("586762")).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	else:
+		var batch: Dictionary = MeatGame.active_batch
+		_inventory_row(tr("Batch"), str(batch.id))
+		_inventory_row(tr("Recipe"), tr(str(batch.recipe_name)))
+		_inventory_row(tr("Stage"), MeatGame.stage_name(str(batch.stage)))
+		_inventory_row(tr("Workstation"), tr(str(MeatGame.machine_record(MeatGame.machinery.machine_for_stage(str(batch.stage))).get("display_name", "Unattended process"))))
+		_inventory_row(tr("Remaining"), _duration(MeatGame.stage_remaining()))
+		_inventory_row(tr("Quality status"), tr(str(batch.get("quality_status", "released")).capitalize()))
+		var blocker := str(batch.get("blocker", ""))
+		_inventory_row(tr("Blocker"), tr("None") if blocker.is_empty() else _blocker_text(blocker))
+	_spacer(panel_body)
+	_label(panel_body, tr("ACTIVE WORK TASKS"), 11, BRAND, true)
+	var active_tasks := MeatGame.workforce.active_tasks()
+	if active_tasks.is_empty():
+		_label(panel_body, tr("No queued manual work."), 13, Color("65716d"))
+	for task in active_tasks:
+		var who := tr("Unassigned")
+		if not str(task.assigned_employee_id).is_empty():
+			who = str(MeatGame.workforce.get_employee(str(task.assigned_employee_id)).get("display_name", who))
+		_inventory_row(tr(str(task.task_type).replace("_", " ").capitalize()), "%s • %s" % [who, _duration(float(task.remaining))])
+
+func _employees_panel() -> void:
+	panel_title.text = tr("Employees & payroll")
+	_status_badge(tr("{count}/{max} EMPLOYED").format({"count": MeatGame.workforce.employees.size(), "max": MeatGame.config.workforce.max_employees}), TEAL)
+	_inventory_row(tr("Daily payroll"), "£%.2f" % _daily_payroll())
+	_inventory_row(tr("Outstanding payroll"), "£%.2f" % MeatGame.workforce.payroll_debt)
+	for employee in MeatGame.workforce.employees:
+		var role: Dictionary = MeatGame.config.workforce.roles[str(employee.role_id)]
+		var card := _panel(panel_body, Color("e5e7df"), 9)
+		var margin := _margin(card, 10)
+		var box := VBoxContainer.new()
+		box.add_theme_constant_override("separation", 4)
+		margin.add_child(box)
+		_label(box, str(employee.display_name), 16, INK, true)
+		_label(box, "%s • £%.0f/day" % [tr(str(role.name)), float(employee.wage_rate)], 12, TEAL, true)
+		_label(box, tr("Skill {skill} • Fatigue {fatigue}% • {task}").format({"skill": "%.1f" % float(employee.skill_level), "fatigue": roundi(float(employee.fatigue)), "task": _employee_task(employee)}), 12, Color("5d6a66"))
+		var buttons := HBoxContainer.new()
+		box.add_child(buttons)
+		var assign := _button(buttons, tr("Reassign"), _cycle_assignment.bind(str(employee.employee_id)))
+		assign.custom_minimum_size.y = 36
+		var dismiss := _button(buttons, tr("Dismiss"), _confirm_dismiss.bind(str(employee.employee_id), str(employee.display_name)))
+		dismiss.custom_minimum_size.y = 36
+		dismiss.disabled = not str(employee.current_task_id).is_empty() or MeatGame.workforce.employees.size() <= 1
+	_spacer(panel_body, 6)
+	_label(panel_body, tr("HIRE STAFF"), 11, BRAND, true)
+	for role_id in ["production_operator", "packaging_operator", "maintenance_technician", "quality_technician"]:
+		var role: Dictionary = MeatGame.config.workforce.roles[role_id]
+		var hire := _button(panel_body, tr("Hire {role} • £{cost} • £{wage}/day").format({"role": tr(str(role.name)), "cost": int(role.hire_cost), "wage": int(role.daily_wage)}), MeatGame.hire_employee.bind(role_id), role_id == "maintenance_technician")
+		hire.custom_minimum_size.y = 42
+		hire.disabled = MeatGame.cash < float(role.hire_cost) or MeatGame.workforce.employees.size() >= int(MeatGame.config.workforce.max_employees)
+
+func _daily_payroll() -> float:
+	var total := 0.0
+	for employee in MeatGame.workforce.employees:
+		total += float(employee.wage_rate)
+	return total
+
+func _employee_task(employee: Dictionary) -> String:
+	if str(employee.current_task_id).is_empty():
+		return tr("Available")
+	var task := MeatGame.workforce.get_task(str(employee.current_task_id))
+	return tr(str(task.get("task_type", "Working")).replace("_", " ").capitalize())
+
+func _cycle_assignment(employee_id: String) -> void:
+	var employee := MeatGame.workforce.get_employee(employee_id)
+	if employee.is_empty():
+		return
+	var options: Array = {
+		"production_operator": ["PREP-001", "SPICE-001", "MAR-001", "DRY-001", "SLICE-001"],
+		"packaging_operator": ["PACK-001"], "maintenance_technician": ["DRY-001", "SLICE-001", "PACK-001"],
+		"quality_technician": ["DRY-001", "PREP-001", "PACK-001"]
+	}.get(str(employee.role_id), [])
+	if options.is_empty():
+		return
+	var index := options.find(str(employee.assigned_machine_id))
+	MeatGame.assign_employee(employee_id, str(options[(index + 1) % options.size()]))
+
+func _confirm_dismiss(employee_id: String, employee_name: String) -> void:
+	var dialog := ConfirmationDialog.new()
+	dialog.title = tr("Dismiss employee")
+	dialog.dialog_text = tr("End {name}'s employment? Active workers cannot be dismissed.").format({"name": employee_name})
+	dialog.ok_button_text = tr("Dismiss")
+	dialog.confirmed.connect(func(): MeatGame.dismiss_employee(employee_id))
+	dialog.canceled.connect(dialog.queue_free)
+	dialog.confirmed.connect(dialog.queue_free)
+	add_child(dialog)
+	dialog.popup_centered(Vector2i(520, 220))
+
+func _blocker_text(blocker: String) -> String:
+	return tr({
+		"missing_worker": "WAITING FOR QUALIFIED WORKER", "worker_task": "MANUAL TASK IN PROGRESS",
+		"machine_broken": "MACHINE UNAVAILABLE", "inspection_required": "INSPECTION REQUIRED",
+		"quality_hold": "QUALITY QUARANTINE"
+	}.get(blocker, blocker.replace("_", " ").to_upper()))
+
 func _inventory_panel() -> void:
 	panel_title.text = tr("Inventory & mass balance")
 	_status_badge(tr("LIVE STOCK"), TEAL)
@@ -480,24 +602,47 @@ func _inventory_panel() -> void:
 	restock.disabled = MeatGame.cash < float(MeatGame.config.packaging_restock_cost)
 
 func _orders_panel() -> void:
-	panel_title.text = tr("Customer orders")
-	_status_badge(tr("LOCAL WHOLESALE"), GOLD)
-	_label(panel_body, tr("Current customers accept all completed 50 g packs at the configured game price."), 14, Color("586661")).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	for recipe_id in ["coriander", "chilli", "bbq"]:
-		var recipe: Dictionary = MeatGame.config.recipes[recipe_id]
-		_inventory_row(tr(str(recipe.name)), "£%.2f / pack" % float(recipe.sale_per_pack))
+	panel_title.text = tr("Customer contracts")
+	_status_badge(tr("REAL INVENTORY REQUIRED"), GOLD)
+	for order in MeatGame.contracts.orders:
+		var card := _panel(panel_body, Color("e5e7df"), 9)
+		var margin := _margin(card, 10)
+		var box := VBoxContainer.new()
+		box.add_theme_constant_override("separation", 4)
+		margin.add_child(box)
+		_label(box, "%s • %s" % [order.order_id, tr(str(order.customer))], 15, INK, true)
+		var recipe: Dictionary = MeatGame.config.recipes[str(order.recipe_id)]
+		_label(box, tr("{quantity} × {recipe} • £{price}/pack").format({"quantity": order.quantity, "recipe": tr(str(recipe.name)), "price": "%.2f" % float(order.unit_price)}), 12, Color("596863"))
+		_label(box, tr("Status: {status} • deadline {time}").format({"status": tr(str(order.status).replace("_", " ").capitalize()), "time": _duration(maxf(0.0, float(order.deadline) - MeatGame.absolute_game_minutes()))}), 12, TEAL, true)
+		if str(order.status) == "available":
+			var accept := _button(box, tr("Accept contract"), MeatGame.accept_contract.bind(str(order.order_id)), true)
+			accept.custom_minimum_size.y = 38
+		elif str(order.status) in ["accepted", "in_production", "ready_for_dispatch"]:
+			var dispatch := _button(box, tr("Dispatch contract"), MeatGame.dispatch_contract.bind(str(order.order_id)), true)
+			dispatch.custom_minimum_size.y = 38
+			dispatch.disabled = int(MeatGame.inventory.get("finished_" + str(order.recipe_id), 0)) < int(order.quantity) or MeatGame.quality.has_held_finished_recipe(str(order.recipe_id))
 	_spacer(panel_body)
-	_label(panel_body, tr("Future contracts unlock with reputation. Live MeatCraft shop prices are not used by this fictional economy."), 13, Color("67736f")).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_label(panel_body, tr("Open-market dispatch remains available in Production when no contract is selected. Contract revenue is credited only after a valid dispatch."), 12, Color("67736f")).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 func _haccp_panel() -> void:
 	panel_title.text = tr("Food-safety management")
 	_status_badge(tr("SIMPLIFIED EDUCATIONAL GAME SYSTEM"), TEAL)
 	_label(panel_body, tr("This is not a legally sufficient HACCP system or real production guidance."), 13, BRAND, true).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_inventory_row(tr("Cleanliness"), "%d%%" % roundi(MeatGame.hygiene))
-	_inventory_row(tr("Traceability records"), tr("CURRENT"))
-	_inventory_row(tr("Zone separation"), tr("PASS"))
+	_inventory_row(tr("Open incidents"), str(MeatGame.quality.open_incidents().size()))
+	_inventory_row(tr("Held batches"), str(MeatGame.quality.held_batches.size()))
+	_inventory_row(tr("Traceability records"), str(MeatGame.quality.batch_history.size()))
 	_inventory_row(tr("Dryer condition"), "%d%%" % roundi(MeatGame.machine_condition))
 	_spacer(panel_body)
+	for incident in MeatGame.quality.open_incidents():
+		var incident_colour := BRAND if str(incident.severity) in ["major", "critical"] else GOLD
+		_status_badge("%s • %s" % [incident.incident_id, tr(str(incident.severity).capitalize())], incident_colour)
+		_label(panel_body, tr(str(incident.description)), 13, INK, true).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_label(panel_body, tr("Batch {batch} • action: {action}").format({"batch": incident.related_batch, "action": tr(str(incident.required_action).replace("_", " ").capitalize())}), 12, Color("65716d"))
+		if str(incident.status) in ["open", "under_investigation"]:
+			var action := _button(panel_body, tr("Assign corrective action"), MeatGame.begin_corrective_action.bind(str(incident.incident_id), str(incident.required_action)), true)
+			action.custom_minimum_size.y = 40
+			action.disabled = not MeatGame.workforce.has_available_role("quality_technician")
 	var clean := _button(panel_body, tr("Complete cleaning round • £45"), MeatGame.clean_factory, true)
 	clean.disabled = MeatGame.hygiene >= 99.0 or MeatGame.cash < 45.0
 	_label(panel_body, tr("Receiving checks, supplier lot, recipe, machine history and inspections are recorded with each active batch."), 13, Color("65716d")).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -509,8 +654,23 @@ func _finance_panel() -> void:
 	_inventory_row(tr("Lifetime expenses"), "£%s" % _money(MeatGame.lifetime_expenses))
 	_inventory_row(tr("Operating result"), "£%s" % _money(MeatGame.lifetime_revenue - MeatGame.lifetime_expenses))
 	_inventory_row(tr("Batches completed"), str(MeatGame.batches_completed))
+	_inventory_row(tr("Payroll"), "£%s" % _money(_category_total("payroll")))
+	_inventory_row(tr("Repairs"), "£%s" % _money(_category_total("repairs")))
+	_inventory_row(tr("Contracts"), "£%s" % _money(_category_total("contracts")))
+	_inventory_row(tr("Payroll debt"), "£%s" % _money(MeatGame.workforce.payroll_debt))
 	_spacer(panel_body)
-	_label(panel_body, tr("Fictional balancing values are stored in config/meatcraft_game.json."), 13, Color("65716d")).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_label(panel_body, tr("RECENT TRANSACTIONS"), 11, BRAND, true)
+	for index in range(mini(5, MeatGame.transactions.size())):
+		var transaction: Dictionary = MeatGame.transactions[index]
+		_inventory_row(tr(str(transaction.reason)), "%s£%.2f" % ["+" if float(transaction.amount) >= 0.0 else "−", absf(float(transaction.amount))])
+	_label(panel_body, tr("Fictional balancing values are stored in config/meatcraft_game.json."), 12, Color("65716d")).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+func _category_total(category: String) -> float:
+	var total := 0.0
+	for transaction in MeatGame.transactions:
+		if str(transaction.category) == category:
+			total += absf(float(transaction.amount))
+	return total
 
 func _machine_panel() -> void:
 	var data: Array = {
@@ -523,15 +683,32 @@ func _machine_panel() -> void:
 		"dispatch": [tr("Finished Goods & Dispatch"), tr("Protected storage and customer order handoff"), "360 packs", "£600"]
 	}.get(selected_machine, [tr("Factory equipment"), "", "", ""])
 	panel_title.text = data[0]
-	_status_badge(tr("RUNNING") if _machine_is_active(selected_machine) else tr("AVAILABLE"), Color("5b9b72") if _machine_is_active(selected_machine) else TEAL)
+	var record := MeatGame.machine_record(selected_machine)
+	var machine_status := str(record.get("operating_status", "available"))
+	var badge_colour := BRAND if machine_status in ["broken", "waiting_for_technician"] else Color("4f8fc4") if machine_status == "under_repair" else GOLD if machine_status == "maintenance_recommended" else Color("5b9b72") if _machine_is_active(selected_machine) else TEAL
+	_status_badge(tr(machine_status.replace("_", " ").to_upper()), badge_colour)
 	_label(panel_body, data[1], 15, Color("52615d")).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_inventory_row(tr("Capacity"), data[2])
 	_inventory_row(tr("Purchase value"), data[3])
-	if selected_machine == "dryer":
-		_inventory_row(tr("Condition"), "%d%%" % roundi(MeatGame.machine_condition))
+	if not record.is_empty():
+		_inventory_row(tr("Machine ID"), str(record.machine_id))
+		_inventory_row(tr("Condition"), "%d%%" % roundi(float(record.condition)))
+		_inventory_row(tr("Running hours"), "%.1f h" % float(record.running_hours))
+		_inventory_row(tr("Wear"), "%d%%" % roundi(float(record.wear)))
+	if machine_status in ["broken", "waiting_for_technician"]:
+		var fault: Dictionary = record.get("fault_state", {})
+		_status_badge(tr("FAULT DETECTED"), BRAND)
+		_label(panel_body, tr(str(fault.get("description", "Machine fault"))), 13, INK, true).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_inventory_row(tr("Required part"), tr(str(record.get("required_spare_part", "")).replace("_", " ").capitalize()))
+		var repair := _button(panel_body, tr("Assign technician and repair"), MeatGame.repair_machine.bind(selected_machine), true)
+		repair.disabled = not MeatGame.workforce.has_available_role("maintenance_technician")
+	if selected_machine == "dryer" and machine_status not in ["broken", "waiting_for_technician", "under_repair"]:
 		_inventory_row(tr("Ventilation"), tr("ACTIVE") if _machine_is_active("dryer") else tr("STANDBY"))
 		var maintain := _button(panel_body, tr("Preventive maintenance • £280"), MeatGame.maintain_dryer, true)
 		maintain.disabled = MeatGame.machine_condition >= 99.0 or MeatGame.cash < float(MeatGame.config.maintenance_cost)
+	var restock := _button(panel_body, tr("Restock spare-parts cabinet • £220"), MeatGame.restock_spare_parts)
+	restock.custom_minimum_size.y = 40
+	restock.disabled = MeatGame.cash < float(MeatGame.config.machines.parts_restock_cost)
 	_spacer(panel_body)
 	_button(panel_body, tr("Focus camera"), func(): focus_machine_requested.emit(selected_machine))
 
@@ -572,6 +749,13 @@ func _objective_text() -> String:
 	if not MeatGame.pending_delivery.is_empty() and MeatGame.pending_delivery.has("remaining"):
 		return tr("Wait for the traceable beef delivery • try 4× speed")
 	if not MeatGame.active_batch.is_empty():
+		var blocker := str(MeatGame.active_batch.get("blocker", ""))
+		if blocker == "machine_broken":
+			return tr("Repair the unavailable machine before production can continue")
+		if blocker == "quality_hold":
+			return tr("Resolve the open quality incident and release or reject the batch")
+		if blocker == "missing_worker":
+			return tr("Hire or free a qualified employee for the waiting task")
 		if bool(MeatGame.active_batch.get("inspection_required", false)):
 			return tr("Inspect the drying batch before production can continue")
 		return tr("Supervise {batch}: {stage}").format({"batch": MeatGame.active_batch.id, "stage": MeatGame.stage_name(str(MeatGame.active_batch.stage))})
@@ -613,7 +797,7 @@ func _show_settings() -> void:
 	motion.toggled.connect(func(value: bool): MeatGame.reduced_motion = value)
 	box.add_child(motion)
 	var language := _button(box, tr("Language: English / Polski"), _switch_language.bind(shade))
-	language.tooltip_text = tr("A complete Polish localisation pass is in progress for the new 3D interface.")
+	language.tooltip_text = tr("Switch the complete operations interface between English and Polish.")
 	_spacer(box)
 	_button(box, tr("Save and close"), func():
 		MeatGame.save_game()
@@ -632,7 +816,7 @@ func _switch_language(shade: Control) -> void:
 func _toast(message: String, kind: String = "info") -> void:
 	if not is_instance_valid(toast_layer):
 		return
-	var colour := GOLD if kind in ["milestone", "sale"] else BRAND if kind == "warning" else Color("dfe8dc")
+	var colour := Color("b93632") if kind == "critical" else GOLD if kind in ["milestone", "sale"] else BRAND if kind == "warning" else Color("dfe8dc")
 	var toast := _panel(toast_layer, colour, 12)
 	toast.position = Vector2((size.x - 620) * 0.5, 104)
 	toast.size = Vector2(620, 58)
