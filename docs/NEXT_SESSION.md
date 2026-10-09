@@ -1,14 +1,13 @@
 # Następna sesja
 
-1. Uruchom `git status --short --branch`, `./scripts/setup.sh` i `./scripts/test.sh`.
-2. Przeczytaj `docs/AUTONOMOUS_DEV_CHECKPOINT.md` oraz konfigurację `config/meatcraft_game.json`.
-3. Dodaj do konfiguracji role pracowników, płace, szybkość, koszt zatrudnienia i dozwolone etapy.
-4. Rozszerz `MeatGame` o pracowników, kolejkę zadań i naliczanie płac według czasu gry. Jedna zmiana stanu musi mieć jednego właściciela.
-5. Połącz istniejące trzy modele pracowników z zadaniami oraz punktami pracy przy urządzeniach.
-6. Dodaj panel pracowników do lewego menu i pokaż rolę, bieżące zadanie, status oraz koszt zmiany.
-7. Zwiększ wersję zapisu i dodaj migrację lub bezpieczną obsługę starszego v2.
-8. Dodaj testy rekrutacji, przydziału, kosztu, pauzy, zapisu/wczytania i braku podwójnego naliczania płac.
-9. Uruchom wszystkie 43 testy regresji, testy MeatCraft i test renderowania; obejrzyj nowe zrzuty.
-10. Zaktualizuj checkpoint i utwórz osobny commit na stabilnym wyniku.
+1. Sprawdź `git status --short --branch`, przeczytaj `docs/AUTONOMOUS_DEV_CHECKPOINT.md` i uruchom `./scripts/test.sh`.
+2. Dodaj w `MeatGame` trwałą `production_queue` z rekordami: ID, receptura, masa, priorytet, stan, źródło kontraktu i czas utworzenia.
+3. Pozostaw jedną `active_batch`; po jej bezpiecznym zakończeniu uruchamiaj pierwszą wykonalną pozycję kolejki. Nie rezerwuj ani nie odejmuj surowców dwa razy.
+4. Zapisz i odtwórz kolejkę w schemacie v3, z normalizacją uszkodzonych lub nieaktualnych pozycji.
+5. Egzekwuj `shift_start` i `shift_end` w `WorkforceSystem`, również dla zmiany przechodzącej przez północ. Poza zmianą pracownik regeneruje zmęczenie i nie otrzymuje nowego zadania.
+6. W panelu Planning pokaż kolejność partii, przewidywane blokady materiałów, brak obsady oraz powiązanie z kontraktem.
+7. Dodaj testy kolejnych dwóch partii, zapisu kolejki, braku duplikacji surowców, obsady poza zmianą i dużego skoku czasu przez granicę zmiany.
+8. Uruchom wszystkie trzy zestawy logiki oraz test renderowania, obejrzyj zrzuty i zapisz stabilny commit.
+9. Dopiero po stabilizacji kolejki zacznij pierwszy tryb rozmieszczania urządzeń na siatce z walidacją stref i przejść.
 
-Po systemie pracowników kolejnym priorytetem są awarie i naprawy urządzeń, a następnie incydenty HACCP i kwarantanna partii.
+Nie rozszerzaj od razu `active_batch` do tablicy wielu aktywnych procesów. Najpierw oddziel kolejkę oczekującą od jednego sprawdzonego przebiegu produkcyjnego.

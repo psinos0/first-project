@@ -1,55 +1,80 @@
 # Autonomiczny checkpoint rozwoju
 
-Data: 2026-10-08  
-Gałąź: `feat/meatcraft-empire-3d`  
-Ostatni commit funkcjonalny: `bb0b9ca` (`feat: build MeatCraft Empire 3D vertical slice`)
+Data: 2026-10-09
 
-## Aktualny stan projektu
+Gałąź: `feat/meatcraft-operations-systems`
 
-Główna scena uruchamia grywalny pionowy wycinek MeatCraft Empire w prawdziwym 3D. Gracz przechodzi od menu i zakupu małej hali przez wybór działalności, instalację linii, zakup wołowiny, pełną partię biltongu, kontrolę suszenia, pakowanie i wysyłkę. Interfejs działa po angielsku i po polsku, zapis v2 zachowuje aktywny proces, a stary prototyp 2D pozostaje w historii i przechodzi swoje testy regresji.
+Baza integracyjna: `feat/meatcraft-empire-3d` (`462efa1`)
 
-Aktywna faza to koniec fazy pierwszego pionowego wycinka i początek rozwoju systemów zarządzania fabryką. Ostatnim ukończonym kamieniem milowym jest zweryfikowany pełny obieg pierwszej partii w hali 3D.
+Ostatni commit funkcjonalny: `c973c0e` (`feat: add factory operations management systems`)
 
-## Ważne decyzje architektoniczne
+## Aktualny kamień milowy
 
-- `MeatGame` jest autoloadem i jedynym właścicielem stanu ekonomii, zapasów, czasu, partii i zapisu.
-- Warstwa 3D oraz UI obserwują sygnały stanu i nie naliczają zasobów samodzielnie.
-- Balans i receptury są w `config/meatcraft_game.json`; teksty EN/PL w `assets/meatcraft_strings.csv`.
-- Fabryka korzysta z lekkich prymitywów MeshInstance3D i własnego ArrayMesh dla mięsa, aby utrzymać zgodność z rendererem Compatibility.
-- Test wizualny steruje prawdziwą sceną, symuluje cały proces i zapisuje rzeczywiste klatki z renderera.
-- Wartości procesu i HACCP są jawnie opisane jako fikcyjna mechanika gry.
+Sprint 02 dostarczył połączone z symulacją zarządzanie załogą, maszynami, jakością i kontraktami. Pracownik wykonuje autorytatywne zadanie, maszyna może zatrzymać etap awarią, technik naprawia ją za pieniądze i część, incydent HACCP blokuje partię lub gotowy towar, a kontrakt wypłaca przychód dopiero po prawidłowej wysyłce. Dotychczasowy pełny obieg 10 kg → 94 opakowania nadal działa.
+
+Aktywna faza to zakończenie stabilnego zakresu operacyjnego oraz przygotowanie kolejnego etapu: prawdziwej kolejki produkcyjnej, egzekwowania zmian i trybu rozmieszczania urządzeń.
+
+## Zaimplementowane funkcje
+
+- Cztery role, limit ośmiu etatów, koszty zatrudnienia, płace, zwalnianie z potwierdzeniem i zmiana przypisanej maszyny.
+- Rekordy pracowników z trwałym ID, umiejętnością, doświadczeniem, wydajnością, zmęczeniem, morale, statusem, zadaniem i zmianą.
+- Kolejka zadań manualnych, przydział według roli, jeden właściciel wyniku zadania i czytelny powód blokady produkcji.
+- Trzyosobowa załoga startowa, która nie tworzy ekonomicznego soft-locka.
+- Płace według monotonicznych okresów czasu gry, dług płacowy przy braku gotówki i historia transakcji bez podwójnego naliczania po wczytaniu.
+- Indywidualny stan sześciu maszyn: kondycja, zużycie, godziny, awaria, przestój, część, koszt, czas naprawy i historia.
+- Techniczne naprawy jako zapisane, czasowe zadania pracownika; produkcja wznawia się po zakończeniu dokładnie raz.
+- Incydenty jakości, wstrzymane partie, działania korygujące, zwolnienie partii oraz historia partii i inspekcji.
+- Trzy kontrakty z terminami i wymaganym SKU; przyjęcie nie daje pieniędzy, wysyłka zużywa właściwy zapas i płaci jeden raz.
+- Księga finansowa z kategoriami przychodów i wydatków.
+- Pracownicy 3D idą do przypisanych stanowisk, a światła i etykiety maszyn pokazują pracę, awarię i naprawę.
+- Panele Planning, Employees, Contracts, HACCP i Finance oraz rozbudowany panel maszyny w EN/PL.
+
+## Architektura i zapis
+
+- `MeatGame` pozostaje autorytatywnym właścicielem stanu i koordynuje osobne klasy `WorkforceSystem`, `MachineSystem`, `QualitySystem` i `ContractSystem`.
+- UI i scena 3D obserwują stan; nie naliczają zasobów ani wyników zadań.
+- Konfiguracja v3 w `config/meatcraft_game.json` zawiera role, płace, maszyny, awarie, incydenty i kontrakty.
+- Aktualny zapis to `user://meatcraft_v3.json` z kopią `.bak`.
+- Wczytanie istniejącego v2 tworzy pełny stan v3 i zapisuje go w nowej lokalizacji bez modyfikowania oryginału v2.
+- Migracja zachowuje pieniądze, magazyn i aktywną produkcję oraz dodaje działającą załogę, maszyny, jakość, kontrakty i historię.
 
 ## Zmienione obszary
 
-- `project.godot`, `scenes/meatcraft_main.tscn`
-- `scripts/meatcraft/`
+- `scripts/meatcraft/workforce_system.gd`
+- `scripts/meatcraft/machine_system.gd`
+- `scripts/meatcraft/quality_system.gd`
+- `scripts/meatcraft/contract_system.gd`
+- `scripts/meatcraft/meat_game.gd`
+- `scripts/meatcraft/factory_3d.gd`
+- `scripts/meatcraft/meatcraft_ui.gd`
 - `config/meatcraft_game.json`
 - `assets/meatcraft_strings*`
-- `scripts/tests/meatcraft_*`
+- `scripts/tests/meatcraft_operations_test.gd`
+- `scripts/tests/meatcraft_visual_test.gd`
 - `docs/screenshots/`
-- `README.md`, `docs/VALIDATION.md`, `docs/ROADMAP.md`
-- `scripts/setup.sh`, `scripts/test.sh`
 
 ## Wykonana walidacja
 
-- `./scripts/setup.sh`: import Godot 4.7.2 bez błędów projektu.
-- `./scripts/test.sh`: regresja 2D **43/43**, symulacja MeatCraft **41/41**.
-- Test OpenGL/Compatibility z Xorg dummy i Mesa llvmpipe: **21/21**.
-- Oględziny aktualnych zrzutów 1280×800 i 960×540.
-- Import i oba zestawy testów logiki powtórzone z czystej paczki `MeatCraft-Empire-3D.zip`.
+- Godot 4.7.2 Stable: `4.7.2.stable.official.ed1daf0bf`.
+- `./scripts/test.sh`: regresja 2D **43/43**, podstawowa symulacja MeatCraft **41/41**, operacje Sprintu 02 **61/61**.
+- Test renderowania OpenGL Compatibility na Xorg dummy i Mesa llvmpipe: **41/41**.
+- Czyste archiwum Git: sprawdzona integralność, świeży import i ponownie wszystkie **145/145** testów logiki.
+- Oględziny zrzutów 1280×800 i 960×540: panele mają zawartość, pracownicy są widoczni, technik dociera do awarii, stany maszyn i alerty są czytelne.
+- Test kontraktu potwierdza 94 → 34 opakowania i £261 przychodu po wysyłce 60 sztuk.
+- Test migracji potwierdza brak nadpisania v2 oraz brak duplikacji pieniędzy i zapasów po zapisie i ponownym wczytaniu v3.
 
-Zweryfikowano zakup, koszty, dostawę, stany magazynowe, pełną maszynę stanów, kontrolę w 3,5. dniu, bilans masy, pakowanie, sprzedaż, konserwację, higienę, zapis/wczytanie, collidery 3D, polski interfejs i układ minimalny.
+## Znane ograniczenia i blokery
 
-## Znane niepowodzenia i blokery
-
-- Wirtualny sterownik graficzny ostrzega, że nie obsługuje zmiany V-Sync; test renderowania mimo tego przechodzi.
-- Brak oficjalnych szablonów eksportu Godot 4.7.2 blokuje lokalne EXE i HTML5.
-- Brak Android SDK, `adb` i Gradle blokuje debug APK oraz test urządzenia.
-- Nie ma jeszcze pracowników z zadaniami, płacami i zmęczeniem, losowych awarii/napraw, incydentów jakości, swobodnego build mode ani postępu offline.
+- Pola zmian i regeneracja istnieją, ale dostępność poza godzinami zmiany nie blokuje jeszcze przydziału. Ten fragment jest częściowy.
+- Panel Planning pokazuje aktywną partię i zadania; kolejka przyszłych partii i wiele równoległych partii nie są zaimplementowane.
+- Swobodny tryb budowy i rozmieszczanie urządzeń nie są zaimplementowane.
+- Kontrakty mają terminy, ale nie naliczają jeszcze osobnej kary za spóźnienie ani wymogu minimalnej jakości.
+- Wirtualny sterownik graficzny zgłasza oczekiwane ostrzeżenie o braku zmiany V-Sync; renderowanie przechodzi.
+- Brak oficjalnych szablonów eksportu Godot 4.7.2 blokuje lokalne EXE i Web. Brak Android SDK, `adb` i Gradle blokuje APK i test urządzenia.
 
 ## Następna dokładna akcja
 
-Zaimplementować pierwszy system pracowników: dane ról i płac w konfiguracji, przydział jednego pracownika do przygotowania/suszenia/pakowania, dzienny koszt, prostą kolejkę zadań, status w HUD, zapis v3 i testy braku podwójnego naliczania płac po wczytaniu.
+Najpierw wprowadzić kolejkę przyszłych partii jako osobne rekordy z trwałymi ID, wymaganym SKU, masą i priorytetem, bez zmiany autorytatywnego bilansu pojedynczej aktywnej partii. Następnie egzekwować godziny zmian przy wyborze pracownika i pokazywać w Planning przewidywany czas oczekiwania. Dodać test przekazania pierwszej ukończonej partii do następnej pozycji kolejki, zapis/wczytanie kolejki oraz przypadek braku pracownika na zmianie.
 
 ## Polecenia środowiska
 
@@ -60,7 +85,7 @@ cd /workspace/first-project
 ./scripts/run.sh
 ```
 
-Test renderowania wymaga działającego wyświetlacza X11:
+Test renderowania przy działającym X11:
 
 ```sh
 source scripts/env.sh
@@ -70,4 +95,4 @@ export CRAFT_CAPTURE_DIR="$PWD/docs/screenshots"
   --script res://scripts/tests/meatcraft_visual_test.gd
 ```
 
-Przed dalszą pracą sprawdzić `git status`, pozostać na `feat/meatcraft-empire-3d` i nie scalać do `main` bez wyraźnej zgody.
+Przed dalszą pracą sprawdzić `git status --short --branch`, pozostać na `feat/meatcraft-operations-systems` i nie scalać do `main` bez wyraźnej zgody.
